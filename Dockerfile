@@ -93,6 +93,38 @@ RUN apt-get update -qq > /dev/null && \
         react-native-cli > /dev/null && \
     npm cache clean --force > /dev/null && \
     rm -rf /tmp/* /var/tmp/*
+    
+# Installing appium
+ARG APPIUM_VERSION=1.7.0-beta
+ENV APPIUM_VERSION=$APPIUM_VERSION
+
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash && \
+    apt-get -qqy install nodejs && \
+    npm install -g appium@${APPIUM_VERSION} --unsafe-perm=true --allow-root && \
+    exit 0 && \
+    npm cache clean && \
+    apt-get remove --purge -y npm && \
+    apt-get autoremove --purge -y && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    apt-get clean
+    
+#================================
+# APPIUM Test Distribution (ATD)
+#================================
+ARG ATD_VERSION=1.2
+ENV ATD_VERSION=$ATD_VERSION
+RUN wget -nv -O RemoteAppiumManager.jar "https://github.com/AppiumTestDistribution/ATD-Remote/releases/download/${ATD_VERSION}/RemoteAppiumManager-${ATD_VERSION}.jar"
+
+#===============
+# Expose Ports
+#---------------
+# 4723
+#   Appium port
+# 4567
+#   ATD port
+#===============
+EXPOSE 4723
+EXPOSE 4567
 
 # Install Android SDK
 RUN echo "Installing sdk tools ${ANDROID_SDK_TOOLS_VERSION}" && \
